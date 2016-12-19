@@ -1,0 +1,3 @@
+git+https://github.com/mynameisfiber/img2txt
+Pillow
+docopt
