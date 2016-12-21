@@ -60,15 +60,14 @@ def parse_source(source, cellnum, padding=3):
 
 def parse_notebook(notebookfd, screen_size=None):
     data = json.load(notebookfd)
-    max_cellnum = max(c.get('execution_count', 1) for c in data['cells'])
+    max_cellnum = max(c.get('execution_count') or 1 for c in data['cells'])
     padding = int(math.log10(max_cellnum) or 1)
     for cell in data['cells']:
         cellnum = cell.get('execution_count', ' ')
         source = list(parse_source(cell['source'], cellnum, padding=padding))
         print("\n".join(source), end='\n\n')
-        if 'outputs' in cell:
-            for output in cell['outputs']:
-                print(format_output(output, screen_size), end='\n\n')
+        for output in cell.get('outputs', []):
+            print(format_output(output, screen_size), end='\n\n')
         print('-'*30, end='\n\n')
 
 
@@ -79,6 +78,6 @@ if __name__ == "__main__":
     width = dct.get('width')
     screen_size = (height, width)
     if not (height and width):
-        screen_size = None
+        screen_size = terminal_size()
     with open(notebook) as fd:
         parse_notebook(fd, screen_size)
